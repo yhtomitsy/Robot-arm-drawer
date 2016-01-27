@@ -83,18 +83,16 @@ int treatValue(int data) {
 }
 
 void loop() { 
-  //Serial.println(treatValue(analogRead(joyPin1)));
-  //Serial.println(treatValue(analogRead(joyPin2)));
   switch (digitalRead(pushButton)){
     case 0:
-      if(treatValue(analogRead(joyPin1)) > 52){
+      if(52 < treatValue(analogRead(joyPin1))){
         velocity(abs(52 - treatValue(analogRead(joyPin1)))); // get velocity
         if(!moveForward){
           digitalWrite(dir_base, LOW); //Pull direction pin low to move "forward"
           digitalWrite(EN_base, LOW);
           digitalWrite(EN_elbow, HIGH);
           clearFlags();
-          moveForward = true;
+          moveForward = false;
         }
         digitalWrite(stp_base,HIGH); //Trigger one step forward
         delay(1);
@@ -118,11 +116,11 @@ void loop() {
       else if(treatValue(analogRead(joyPin2)) > 52){
         velocity(abs(52 - treatValue(analogRead(joyPin2)))); // get velocity
         if(!moveUp){
-          digitalWrite(dir_elbow, LOW); //Pull direction pin low to move "backward"
+          digitalWrite(dir_elbow, LOW); //Pull direction pin low to move "forward"
           digitalWrite(EN_elbow, LOW);
           digitalWrite(EN_base, HIGH);
           clearFlags();
-          moveUp = true;
+          moveUp = false;
         }
         digitalWrite(stp_elbow,HIGH); //Trigger one step forward
         delay(1);
@@ -186,7 +184,7 @@ void loop() {
       else if(treatValue(analogRead(joyPin2)) > 52){
         velocity(abs(52 - treatValue(analogRead(joyPin2)))); // get velocity
         if(!moveUp){
-          digitalWrite(dir_elbow, HIGH); //Pull direction pin low to move "backward"
+          digitalWrite(dir_elbow, LOW); //Pull direction pin low to move "backward"
           digitalWrite(dir_base, LOW); //Pull direction pin low to move "backward"
           digitalWrite(EN_elbow, LOW);
           digitalWrite(EN_base, LOW);
@@ -223,7 +221,6 @@ void loop() {
       }
       break;
   }
-  //delay(10);
 }
 
 void clearFlags(){
@@ -239,25 +236,27 @@ void movePen(){
   if((pressTime - previousPressTime) > 2000){
     if(!setPenInPosition){
       setPenInPosition = true;
-      for (pos = 160; pos >= 90; pos--) { // goes from 0 degrees to 180 degrees
-        // in steps of 1 degree
-        wristServo.write(pos);              // tell servo to go to position in variable 'pos'
-      }
       for (pos = 0; pos <= 180; pos++) { // goes from 0 degrees to 180 degrees
         // in steps of 1 degree
         gripperServo.write(pos);              // tell servo to go to position in variable 'pos'
       }
-    }
-    else{
-      setPenInPosition = false;
-      for (pos = 90; pos <= 160; pos += 1) { // goes from 0 degrees to 180 degrees
+      for (pos = 165; pos >= 155; pos--) { // goes from 180 degrees to 90 degrees
         // in steps of 1 degree
         wristServo.write(pos);              // tell servo to go to position in variable 'pos'
       }
-      for (pos = 180; pos >= 0; pos--) { // goes from 0 degrees to 180 degrees
+    }
+    else{
+      setPenInPosition = false;
+      wristServo.write(165);
+      //gripperServo.write(0);
+      /*for (pos = 156; pos <= 165; pos ++) { // goes from 0 degrees to 180 degrees
         // in steps of 1 degree
-        gripperServo.write(pos);              // tell servo to go to position in variable 'pos'
+        wristServo.write(pos);              // tell servo to go to position in variable 'pos'
       }
+      /*for (pos = 180; pos >= 0; pos--) { // goes from 0 degrees to 180 degrees
+        // in steps of 1 degree
+        gripperSeo.write(pos); rv             // tell servo to go to position in variable 'pos'
+      }*/
     }
     Serial.println(setPenInPosition);
     previousPressTime = millis();
